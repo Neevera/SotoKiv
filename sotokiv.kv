@@ -1,0 +1,382 @@
+# sotokiv.kv
+#:import dp kivy.metrics.dp
+#:import MDList kivymd.uix.list.MDList
+#:import OneLineListItem kivymd.uix.list.OneLineListItem
+#:import MDTabsBase kivymd.uix.tab.MDTabsBase
+#:import MDFillRoundFlatButton kivymd.uix.button.MDFillRoundFlatButton
+#:import MDTopAppBar kivymd.uix.toolbar.MDTopAppBar
+#:import MDIconButton kivymd.uix.button.MDIconButton
+#:import MDTextField kivymd.uix.textfield.MDTextField
+#:import MDLabel kivymd.uix.label.MDLabel
+#:import MDScreenManager kivymd.uix.screenmanager.MDScreenManager
+#:import MDScreen kivymd.uix.screen.MDScreen
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import Image kivy.uix.image.Image
+#:import ScrollView kivy.uix.scrollview.ScrollView
+#:import MDBoxLayout kivymd.uix.boxlayout.MDBoxLayout
+#:import MDFloatLayout kivymd.uix.floatlayout.MDFloatLayout
+#:import MDTabs kivymd.uix.tab.MDTabs
+#:import PushMatrix kivy.graphics.PushMatrix
+#:import PopMatrix kivy.graphics.PopMatrix
+#:import Translate kivy.graphics.Translate
+#:import Color kivy.graphics.Color
+#:import Rectangle kivy.graphics.Rectangle
+
+
+<Tab@MDBoxLayout+MDTabsBase>: # Kelas kustom untuk Tab agar bisa di-scroll
+    orientation: 'vertical'
+    # Properti lain bisa ditambahkan di sini misalnya perlu +++
+
+
+MDScreenManager:
+    id: screen_manager
+    MenuScreen:
+        name: 'menu'
+    CartScreen:
+        name: 'cart'
+    PaymentScreen:
+        name: 'payment'
+    ReceiptScreen:
+        name: 'receipt'
+
+<MenuListItem@MDBoxLayout>:
+    adaptive_height: True
+    orientation: 'horizontal'
+    padding: [dp(5), dp(4), dp(5), dp(4)] # Sedikit menambah padding vertikal
+    spacing: dp(10)
+    item_data: {}
+
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    MDLabel:
+        text: root.item_data.get('nama', '')
+        size_hint_x: 0.30 # Disesuaikan
+        halign: 'left'
+        valign : 'middle'
+        shorten: True
+        shorten_from: 'right'
+
+    MDLabel:
+        text: f"Rp. {root.item_data.get('harga', 0):,}"
+        size_hint_x: 0.15 # Disesuaikan
+        halign: 'left'
+        valign : 'middle'
+
+    MDIconButton:
+        icon: "pencil-outline"
+        user_font_size: "20sp"
+        on_release: app.open_edit_item_dialog(root.item_data)
+        theme_text_color: "Custom"
+        text_color: app.theme_cls.primary_color
+        size_hint_x: 0.10 # Baru
+        pos_hint: {'center_y': 0.5}
+
+    MDIconButton:
+        icon: "delete-outline"
+        user_font_size: "20sp"
+        on_release: app.open_confirm_remove_dialog(root.item_data)
+        theme_text_color: "Custom"
+        text_color: app.theme_cls.error_color
+        size_hint_x: 0.10 # Baru
+        pos_hint: {'center_y': 0.5}
+
+    MDTextField:
+        id: quantity_input
+        hint_text: 'Qty'
+        input_filter: 'int'
+        multiline: False
+        size_hint_x: 0.15 # Disesuaikan
+        mode: "rectangle"
+        font_size: "14sp" # Sedikit menyesuaikan ukuran font jika perlu
+        # Mengurangi padding internal textfield agar lebih ramping
+        padding: [dp(8), dp(8), dp(2), dp(8)] # kiri, atas, kanan, bawah
+        line_height: 1
+
+    MDRaisedButton:
+        text: 'Tambah'
+        size_hint_x: 0.20 # Disesuaikan
+        font_size: "12sp"
+        padding: [dp(10), dp(10)]
+        on_press: app.add_to_cart(root.item_data, quantity_input)
+
+<MenuScreen@MDScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title: "Soto Kwali Mbah Cipto"
+            height: dp(40) # Ketinggian default MDTopAppBar adalah dp(56)
+            elevation: 4 #efek shadow
+
+        MDBoxLayout:
+            orientation: 'horizontal'
+            adaptive_height: True
+            padding: dp(10)
+            spacing: dp(10)
+            MDLabel:
+                text: 'Nomor Meja:'
+                size_hint_x: 0.3
+                adaptive_height: True
+            MDTextField:
+                id: nomor_meja_input
+                text: str(app.nomor_meja)
+                input_filter: 'int'
+                multiline: False
+                size_hint_x: 0.7
+                mode: "rectangle"
+                on_text_validate: app.update_nomor_meja(self.text)
+                # Tambahkan on_focus untuk update jika pengguna tidak menekan enter
+                # on_focus: if not self.focus: app.update_nomor_meja(self.text)
+
+
+        MDTabs:
+            id: tabs
+            Tab:
+                title: 'Makanan'
+                MDRaisedButton:
+                    text: "+"
+                    icon: "plus"
+                    pos_hint: {'center_x': 0.5}
+                    size_hint_y: None
+                    height: dp(48)
+                    md_bg_color: app.theme_cls.accent_color #mengganti warna kedua (hijau) karena primary color adalah biru 
+                    on_release: app.open_add_item_dialog('food')
+                    padding: [dp(0), dp(5)]
+
+
+                ScrollView:
+                    MDList:
+                        id: food_menu_layout
+                        spacing: dp(1)
+                        padding: [dp(8), dp(8), dp(8), dp(8)] # Padding atas untuk jarak dari tombol
+
+            Tab:
+                title: 'Minuman'
+                MDRaisedButton:
+                    text: "+"
+                    icon: "plus"
+                    pos_hint: {'center_x': 0.5}
+                    size_hint_y: None
+                    height: dp(48)
+                    md_bg_color: app.theme_cls.accent_color
+                    on_release: app.open_add_item_dialog('drink')
+                    padding: [dp(0), dp(5)]
+
+                ScrollView:
+                    MDList:
+                        id: drink_menu_layout
+                        spacing: dp(1)
+                        padding: [dp(8), dp(8), dp(8), dp(8)]
+
+        MDFillRoundFlatButton:
+            text: 'Lihat Keranjang'
+            pos_hint: {'center_x': 0.5}
+            padding: [dp(15), dp(10)]
+            # margin_y: dp(10) # Untuk MDBoxLayout, padding pada parent lebih umum
+            # Jika ini adalah item terakhir, padding pada MDBoxLayout parent bisa digunakan
+            # atau size_hint_y: None dan height: dp(value)
+            size_hint_y: None
+            height: dp(48) # Memberi tinggi eksplisit
+            # Memberi margin bawah untuk tombol ini
+            canvas.before:
+                PushMatrix
+                Translate:
+                    y: dp(10) # Margin bawah
+            canvas.after:
+                PopMatrix
+
+            on_press:
+                app.update_cart_display()
+                app.root.current = 'cart'
+
+<CartItem@MDBoxLayout>:
+    adaptive_height: True
+    padding: dp(8)
+    spacing: dp(8)
+    item_data_ref: {}
+
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    MDLabel:
+        text: root.item_data_ref.get('nama', '')
+        size_hint_x: 0.4
+        halign: 'left'
+        valign: 'middle'
+    MDLabel:
+        text: str(root.item_data_ref.get('quantity', 0))
+        size_hint_x: 0.15
+        halign: 'center'
+        valign: 'middle'
+    MDLabel:
+        text: f"Rp. {root.item_data_ref.get('harga', 0):,}"
+        size_hint_x: 0.2
+        halign: 'right'
+        valign: 'middle'
+    MDLabel:
+        text: f"Rp. {root.item_data_ref.get('harga', 0) * root.item_data_ref.get('quantity', 0):,}"
+        size_hint_x: 0.2
+        halign: 'right'
+        valign: 'middle'
+        bold: True
+    MDIconButton:
+        icon: 'delete-outline'
+        user_font_size: "24sp"
+        theme_text_color: "Error"
+        on_press: app.remove_from_cart(root.item_data_ref)
+        pos_hint: {'center_y': 0.5}
+
+<CartScreen@MDScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title: "Keranjang Pesanan"
+            height: dp(40)
+            left_action_items: [["arrow-left", lambda x: setattr(app.root, 'current', 'menu')]]
+            elevation: 4
+
+        MDBoxLayout:
+            adaptive_height: True
+            padding: [dp(16), dp(12), dp(16), dp(12)] # Mengurangi padding vertikal
+            MDLabel:
+                text: 'Item'
+                bold: True
+                size_hint_x: 0.4
+                halign: 'left'
+            MDLabel:
+                text: 'Qty'
+                bold: True
+                size_hint_x: 0.15
+                halign: 'center'
+            MDLabel:
+                text: 'Harga'
+                bold: True
+                size_hint_x: 0.2
+                halign: 'right'
+            MDLabel:
+                text: 'Subtotal'
+                bold: True
+                size_hint_x: 0.2
+                halign: 'right'
+            MDLabel:
+                text: '' # Placeholder untuk tombol hapus
+                size_hint_x: None
+                width: dp(48) # Sesuaikan dengan lebar MDIconButton
+
+        ScrollView:
+            MDList:
+                id: cart_items_layout
+                spacing: dp(4)
+                padding: dp(4)
+        MDLabel:
+            id: total_cart_label
+            text: 'Total: Rp. 0'
+            font_style: "H6"
+            adaptive_height: True
+            halign: 'right'
+            padding_x: dp(16)
+            padding_y: dp(10)
+
+        MDBoxLayout:
+            adaptive_height: True
+            spacing: dp(10)
+            padding: dp(10)
+            MDRaisedButton:
+                text: 'Tambah Item Lain'
+                on_press: app.root.current = 'menu'
+                size_hint_x: 0.5
+            MDRaisedButton:
+                text: 'Input Jumlah Uang'
+                on_press: app.prepare_payment()
+                size_hint_x: 0.5
+                md_bg_color: app.theme_cls.accent_color
+
+<PaymentScreen@MDScreen>:
+    MDFloatLayout:
+        MDIconButton:
+            icon: "arrow-left"
+            pos_hint: {"x": 0.02, "top": 0.98}
+            on_release: app.root.current = 'cart'
+            user_font_size: "30sp"
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            size_hint: None, None
+            size: dp(600), dp(350) # Ukuran disesuaikan agar lebih pas
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            spacing: dp(20)
+            padding: dp(20)
+
+            Image:
+                source: 'icon.png' # Pastikan file icon.png ada
+                size_hint: None, None
+                size: dp(100), dp(100) # Ukuran ikon disesuaikan
+                pos_hint: {'center_x': 0.5}
+                allow_stretch: True
+                keep_ratio: True
+
+            MDLabel:
+                id: payment_total_label
+                text: 'Total Bayar: Rp. 0'
+                font_style: "H5"
+                adaptive_height: True
+                halign: "center"
+
+
+            MDTextField:
+                id: amount_paid_input
+                hint_text: 'Masukkan jumlah uang dibayar'
+                helper_text: "Hanya angka"
+                helper_text_mode: "on_focus"
+                input_filter: 'int'
+                mode: "rectangle"
+
+            MDRaisedButton:
+                text: 'Buat Struk'
+                size_hint_x: 1 # Memenuhi lebar MDBoxLayout
+                padding: [dp(20), dp(10)]
+                on_press: app.process_payment(amount_paid_input.text)
+                md_bg_color: app.theme_cls.accent_color
+
+<ReceiptScreen@MDScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: dp(10)
+        MDTopAppBar:
+            title: "Struk Pembelian"
+            elevation: 4
+            height: dp(40)
+
+        ScrollView:
+            MDLabel:
+                id: receipt_text_label
+                text: ''
+                font_name: 'RobotoMono-Regular' # Pastikan font ini tersedia
+                size_hint_y: None
+                height: self.texture_size[1] + dp(20)
+                text_size: self.width - dp(20), None
+                padding: [dp(10), dp(10)]
+                halign: 'center' # posisi struk
+
+        MDRaisedButton:
+            text: 'Buat Pesanan Baru'
+            pos_hint: {"center_x": 0.5}
+            padding: [dp(20), dp(10)]
+            # margin_y: dp(10) # Gunakan padding pada parent atau size_hint_y: None
+            size_hint_y: None
+            height: dp(48)
+            # Memberi margin bawah untuk tombol ini
+            canvas.before:
+                PushMatrix
+                Translate:
+                    y: dp(10) # Margin bawah
+            canvas.after:
+                PopMatrix
+            on_press: app.start_new_order()

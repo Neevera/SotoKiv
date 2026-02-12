@@ -1,0 +1,62 @@
+{
+    "1": {
+        "nama": "Soto Besar",
+        "harga": 6000
+    },
+    "2": {
+        "nama": "Soto Kecil",
+        "harga": 4000
+    },
+    "3": {
+        "nama": "Babat",
+        "harga": 5000
+    },
+    "4": {
+        "nama": "Paru",
+        "harga": 5000
+    },
+    "5": {
+        "nama": "Sundukan",
+        "harga": 3000
+    },
+    "6": {
+        "nama": "Bergedel",
+        "harga": 2000
+    },
+    "7": {
+        "nama": "Sosis Solo",
+        "harga": 3000
+    },
+    "8": {
+        "nama": "Tahu Bakso",
+        "harga": 2000
+    },
+    "9": {
+        "nama": "Pisang Goreng",
+        "harga": 2000
+    },
+    "10": {
+        "nama": "Bacem",
+        "harga": 2000
+    },
+    "11": {
+        "nama": "Tahu",
+        "harga": 1000
+    },
+    "12": {
+        "nama": "Tempe",
+        "harga": 1000
+    },
+    "13": {
+        "nama": "Bakwan",
+        "harga": 1000
+    },
+    "14": {
+        "nama": "Kerupuk",
+        "harga": 1000
+    },
+    "15": {
+        "nama": "Karak",
+        "harga": 1000
+    }
+}

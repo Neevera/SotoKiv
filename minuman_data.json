@@ -1,0 +1,18 @@
+{
+    "1": {
+        "nama": "Es Teh",
+        "harga": 3000
+    },
+    "2": {
+        "nama": "Es Jeruk",
+        "harga": 4000
+    },
+    "3": {
+        "nama": "Teh Panas",
+        "harga": 3000
+    },
+    "4": {
+        "nama": "Jeruk Panas",
+        "harga": 4000
+    }
+}
